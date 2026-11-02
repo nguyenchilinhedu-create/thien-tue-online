@@ -3,10 +3,20 @@
 
 ---
 
-## 1. Tổng Quan Dự Án & Cách Chạy
+## 1. Tổng Quan Dự Án, Triển Khai (Deployment) & Cách Chạy
 
 - **Mô tả:** Không gian Thiền Viện 3D trực tuyến xây dựng bằng **Three.js (WebGL)** kết hợp mô hình 3D `.glb` và kiến trúc cổ truyền Việt Nam được dựng bằng hình học thủ tục (procedural geometry).
-- **Kiến trúc Single-File:** Toàn bộ HTML, CSS, UI và logic 3D/AI nằm gọn trong **1 file duy nhất**: [`index.html`](./index.html) (~6.780 dòng).
+- **Trang web chính thức (Cloudflare Pages CDN):** **https://thien-tue-online.pages.dev**
+- **Kho chứa mã nguồn (GitHub):** **https://github.com/nguyenchilinhedu-create/thien-tue-online.git** (nhánh `main`).
+- **Quy trình cập nhật lên mạng (Auto-Deploy CI/CD):**
+  Mỗi khi AI chỉnh sửa xong trên máy, chỉ cần chạy:
+  ```powershell
+  git add -A
+  git commit -m "Mô tả thay đổi"
+  git push origin main
+  ```
+  Cloudflare Pages đã được kết nối trực tiếp với nhánh `main` của GitHub và sẽ tự động cập nhật bản mới lên `https://thien-tue-online.pages.dev` sau khoảng **20–30 giây** (Lưu ý: nếu thay đổi các file `.glb` trong `models_3d/`, hãy tăng tên cache `MODEL_CACHE_NAME` trong `loadModels()` ví dụ từ `'thien-tue-3d-models-v2'` lên `'thien-tue-3d-models-v3'` để trình duyệt người dùng tự động tải lại mô hình mới).
+- **Kiến trúc Single-File:** Toàn bộ HTML, CSS, UI và logic 3D/AI nằm gọn trong **1 file duy nhất**: [`index.html`](./index.html) (~6.830 dòng).
 - **Cách chạy Local Server để test:**
   ```powershell
   python -m http.server 8080 --directory "d:\Thien Vipassana\ChuaOnline"
