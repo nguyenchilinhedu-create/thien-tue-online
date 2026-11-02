@@ -6,7 +6,7 @@
 ## 1. Tổng Quan Dự Án, Triển Khai (Deployment) & Cách Chạy
 
 - **Mô tả:** Không gian Thiền Viện 3D trực tuyến xây dựng bằng **Three.js (WebGL)** kết hợp mô hình 3D `.glb` và kiến trúc cổ truyền Việt Nam được dựng bằng hình học thủ tục (procedural geometry).
-- **Trang web chính thức (Cloudflare Pages CDN):** **https://thien-tue-online.pages.dev**
+- **Tên miền chính thức (Custom Domain):** **https://thienvienonline.com** *(và tên miền phụ Cloudflare Pages: https://thien-tue-online.pages.dev)*
 - **Kho chứa mã nguồn (GitHub):** **https://github.com/nguyenchilinhedu-create/thien-tue-online.git** (nhánh `main`).
 - **Quy trình cập nhật lên mạng (Auto-Deploy CI/CD):**
   Mỗi khi AI chỉnh sửa xong trên máy, chỉ cần chạy:
