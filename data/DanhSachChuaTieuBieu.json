@@ -1,0 +1,135 @@
+[
+  {
+    "id": "chua-mot-cot",
+    "name": "Chùa Một Cột",
+    "region": "Miền Bắc",
+    "location": "Hà Nội",
+    "description": "Biểu tượng kiến trúc Phật giáo ngàn năm văn hiến hình hoa sen nở giữa hồ linh chiếu."
+  },
+  {
+    "id": "chua-tran-quoc",
+    "name": "Chùa Trấn Quốc",
+    "region": "Miền Bắc",
+    "location": "Hà Nội",
+    "description": "Ngôi cổ tự hơn 1500 năm tuổi trên bán đảo Hồ Tây thanh tịnh."
+  },
+  {
+    "id": "chua-huong",
+    "name": "Chùa Hương",
+    "region": "Miền Bắc",
+    "location": "Hà Nội",
+    "description": "Danh lam thắng cảnh quần thể Hương Sơn linh thiêng 'Nam thiên đệ nhất động'."
+  },
+  {
+    "id": "chua-yen-tu",
+    "name": "Chùa Đồng - Yên Tử",
+    "region": "Miền Bắc",
+    "location": "Quảng Ninh",
+    "description": "Cái nôi của Thiền phái Trúc Lâm do Phật hoàng Trần Nhân Tông sáng lập."
+  },
+  {
+    "id": "chua-bai-dinh",
+    "name": "Chùa Bái Đính",
+    "region": "Miền Bắc",
+    "location": "Ninh Bình",
+    "description": "Quần thể tâm linh hùng vĩ ngự giữa non nước Tràng An."
+  },
+  {
+    "id": "chua-tam-chuc",
+    "name": "Chùa Tam Chúc",
+    "region": "Miền Bắc",
+    "location": "Hà Nam",
+    "description": "Ngôi chùa ngự trên hồ nước rộng lớn bao bọc bởi núi đá vôi hùng vĩ."
+  },
+  {
+    "id": "chua-thay",
+    "name": "Chùa Thầy",
+    "region": "Miền Bắc",
+    "location": "Hà Nội",
+    "description": "Ngôi chùa gắn liền với Thiền sư Từ Đạo Hạnh dưới chân núi Sài Sơn."
+  },
+  {
+    "id": "chua-thien-mu",
+    "name": "Chùa Thiên Mụ",
+    "region": "Miền Trung",
+    "location": "Huế",
+    "description": "Đệ nhất cổ tự cố đô bên dòng sông Hương thơ mộng, tháp Phước Duyên uy nghiêm."
+  },
+  {
+    "id": "chua-tu-hieu",
+    "name": "Chùa Từ Hiếu",
+    "region": "Miền Trung",
+    "location": "Huế",
+    "description": "Ngôi tổ đình tĩnh lặng giữa rừng thông bạt ngàn, nơi ghi dấu hạnh hiếu dưỡng."
+  },
+  {
+    "id": "chua-linh-ung",
+    "name": "Chùa Linh Ứng Bãi Bụt",
+    "region": "Miền Trung",
+    "location": "Đà Nẵng",
+    "description": "Nơi có tượng Bồ Tát Quán Thế Âm sừng sững hướng ra biển Đông thanh bình."
+  },
+  {
+    "id": "chua-cau-hoi-an",
+    "name": "Chùa Cầu",
+    "region": "Miền Trung",
+    "location": "Quảng Nam",
+    "description": "Di sản kiến trúc độc đáo bắc qua con lạch nhỏ tại phố cổ Hội An."
+  },
+  {
+    "id": "chua-long-son",
+    "name": "Chùa Long Sơn",
+    "region": "Miền Trung",
+    "location": "Khánh Hòa",
+    "description": "Chùa Phật Trắng ngự trên đỉnh đồi Trại Thủy nhìn ngắm vịnh Nha Trang."
+  },
+  {
+    "id": "thien-vien-truc-lam-da-lat",
+    "name": "Thiền Viện Trúc Lâm",
+    "region": "Tây Nguyên",
+    "location": "Lâm Đồng",
+    "description": "Thiền viện thanh tịnh soi bóng bên hồ Tuyền Lâm giữa rừng thông xanh mát."
+  },
+  {
+    "id": "chua-vinh-nghiem",
+    "name": "Chùa Vĩnh Nghiêm",
+    "region": "Miền Nam",
+    "location": "TP. Hồ Chí Minh",
+    "description": "Ngôi chùa phong cách miền Bắc quy mô lớn, tháp chuông 7 tầng tại Sài Gòn."
+  },
+  {
+    "id": "chua-hoang-phap",
+    "name": "Chùa Hoằng Pháp",
+    "region": "Miền Nam",
+    "location": "TP. Hồ Chí Minh",
+    "description": "Trung tâm hoằng pháp và các khóa tu Phật thất đông đảo hàng đầu phương Nam."
+  },
+  {
+    "id": "chua-giac-lam",
+    "name": "Chùa Giác Lâm",
+    "region": "Miền Nam",
+    "location": "TP. Hồ Chí Minh",
+    "description": "Cổ tự lâu đời nhất đất Gia Định với kiến trúc chữ Tam và nhiều pho tượng cổ quý hiếm."
+  },
+  {
+    "id": "chua-ba-den",
+    "name": "Chùa Bà Đen",
+    "region": "Miền Nam",
+    "location": "Tây Ninh",
+    "description": "Khu di tích tâm linh trên đỉnh 'Nóc nhà Nam Bộ'."
+  },
+  {
+    "id": "chua-vinh-trang",
+    "name": "Chùa Vĩnh Tràng",
+    "region": "Miền Tây",
+    "location": "Tiền Giang",
+    "description": "Ngôi đại tự lớn nhất Tiền Giang kết hợp hài hòa kiến trúc Á - Âu độc đáo."
+  },
+  {
+    "id": "chua-doi",
+    "name": "Chùa Dơi (Mahatup)",
+    "region": "Miền Tây",
+    "location": "Sóc Trăng",
+    "description": "Ngôi chùa Khmer rực rỡ sắc vàng Nam tông, nơi trú ngụ của hàng ngàn chú dơi."
+  }
+]

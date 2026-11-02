@@ -1,0 +1,11 @@
+🛕 Làm web đi chùa online cho 10.000 người cùng lúc, bí kíp là gì?
+E vừa làm xong Đi Chùa Online: chánh điện 3D chạy ngay trên web, có 200 ngôi chùa khắp Việt Nam để chọn. Vào là thấy chú tiểu của mọi người đi lại, quỳ trên nệm, lạy Phật cùng nhau, ai cũng có pháp danh riêng 🙏
+Nhiều bạn hỏi: "Bro làm sao cho 10k người online mà không lag?"
+Bí kíp thì không có, chỉ là bớt việc thừa thôi:
+⚡ Không DB: mọi trạng thái nằm trên RAM, đọc ghi gần như tức thì.
+🦀 Rust + WebSocket: cực nhẹ. Đo thật 1.000 người online chỉ tốn khoảng 16 MB RAM, nên 10.000 người cũng chỉ khoảng 150 MB.
+🧩 Chia nhỏ: mỗi chùa tối đa 50 người, 200 chùa chạy song song, đông thêm thì chỉ cần thêm chùa.
+📦 Gửi ít: gói tin dạng binary vài byte, chỉ gửi khi có thay đổi chứ không spam.
+💾 Cache phía client: model 3D, ảnh, code lưu sẵn dưới trình duyệt, lần sau vào là có ngay.
+Còn tinh chỉnh chi tiết thì… để dành làm nghề nha 😁
+👉 Mời mọi người ghé chùa: dichuaonline. site
