@@ -207,9 +207,7 @@
     }
     .abtn.flash { animation: btn-flash 0.3s ease 3; }
     #hud-hint {
-      position:absolute; bottom:22px; right:14px;
-      background:rgba(0,0,0,.48); border-radius:8px;
-      padding:7px 11px; color:#666; font-size:.7em; line-height:1.65;
+      display: none !important;
     }
     /* Tín hiệu sóng âm nhỏ gọn góc dưới trái để kiểm tra nội bộ Ambient ThienNCL.MP3 đang chạy */
     #ambient-wave-ind {
@@ -291,7 +289,7 @@
       <span class="dest-cta-pill">🗺️ Chọn nơi đến <span class="caret">▾</span></span>
     </div>
     <div id="dest-guide-tip" onclick="toggleDestMenu(event)">
-      👆 Bấm vào đây để đi đến Tượng Phật Hoàng, Bác Hồ, Hồ Sen...
+      👆 Bấm vào đây để đi đến Tượng Phật Hoàng, Bác Hồ, Quan Âm, Hồ Sen...
     </div>
     <div id="dest-menu">
       <div class="dest-header">📍 Chọn điểm đến trong Thiền Viện</div>
@@ -316,6 +314,14 @@
         <div class="dest-info">
           <span class="dest-name">Đài Tượng Chủ Tịch Hồ Chí Minh</span>
           <span class="dest-sub">Quảng trường bên Phải Chánh Điện</span>
+        </div>
+        <span class="dest-dot">●</span>
+      </div>
+      <div class="dest-item" data-dest="quan_am" onclick="goToDestination('quan_am')">
+        <span class="dest-ico">🕊️</span>
+        <div class="dest-info">
+          <span class="dest-name">Đài Tượng Bồ Tát Quán Thế Âm</span>
+          <span class="dest-sub">Đài sen cứu khổ cứu nạn vườn Nam</span>
         </div>
         <span class="dest-dot">●</span>
       </div>
@@ -366,13 +372,9 @@
     <div class="abtn" id="b-lay"       onclick="doLay()">      <span class="ico">🙏</span>Lạy Phật</div>
     <div class="abtn" id="b-thien"     onclick="doThien()">    <span class="ico">🧘</span>Tọa Thiền</div>
     <div class="abtn" id="b-kinh"      onclick="doKinhHanh()"> <span class="ico">🚶</span>Kinh Hành</div>
-    <div class="abtn" id="b-trinhphap" onclick="doTrinhPhap()"><span class="ico">🪷</span><span>Trình Pháp</span><span class="sub-lbl">(Tư vấn trực tiếp)</span></div>
+    <div class="abtn" id="b-trinhphap" onclick="doTrinhPhap()"><span class="ico">🕊️</span><span>Trình Pháp</span><span class="sub-lbl">(Tư vấn trực tiếp)</span></div>
   </div>
-  <div id="hud-hint">
-    W/S/A/D : Di chuyển &nbsp; C : Camera &nbsp; N : Ngày/Đêm<br>
-    Kéo chuột : Xoay tạm (12s) &nbsp; Scroll : Zoom<br>
-    E : Ngồi thiền &nbsp; L : Lạy Phật &nbsp; K : Kinh hành
-  </div>
+  <div id="hud-hint" style="display:none;"></div>
   <div id="ambient-wave-ind" onclick="ensureAmbientPlaying()" title="Tín hiệu nội bộ: Âm thanh nền Thiền (Ambient ThienNCL.MP3)">
     <span class="wbar"></span><span class="wbar"></span><span class="wbar"></span><span class="wbar"></span>
   </div>
@@ -397,6 +399,7 @@ const BUDDHA_STATUES = [
   { id: 'chanh_dien_main', name: 'Phật Thích Ca Mâu Ni',         position: new THREE.Vector3(0, HALL_FLOOR_Y, -5.8) },
   { id: 'phat_hoang_left', name: 'Phật Hoàng Trần Nhân Tông',    position: new THREE.Vector3(-22, 0, -5.5) },
   { id: 'bac_ho_right',    name: 'Chủ tịch Hồ Chí Minh',         position: new THREE.Vector3(22, 0, -5.5) },
+  { id: 'quan_am_garden',  name: 'Bồ Tát Quán Thế Âm',           position: new THREE.Vector3(6.5, 0, 25.8) },
 ];
 
 function findNearestBuddha(playerPos) {
@@ -417,7 +420,7 @@ let playerMesh = null;
 let gender = 'nam';
 let pdList = [];
 let glbNam = null, glbNu = null, glbSuPhu = null;
-let glbPhatHoang = null, glbBacHo = null;
+let glbPhatHoang = null, glbBacHo = null, glbQuanAm = null;
 let suPhuObj = null;
 const SU_PHU_POS = { x: 0.0, z: -4.85 }; // Vị trí Tòa Tọa Cụ của Sư Phụ lùi 1 ô gạch so với hàng bồ đoàn trên cùng (rz=-3.2), quay mặt xuống đại chúng
 const keys = {};
@@ -484,6 +487,9 @@ const KINH_HANH_PATH = [
   { x: -11.2, z: 31.6 },
   { x:  -9.15,z: 27.0 },
   { x:   0.0, z: 27.0 },
+  { x:   3.5, z: 27.5 },
+  { x:   6.5, z: 29.2 }, // Uốn nhẹ vòng qua trước Đài Tượng Bồ Tát Quán Thế Âm
+  { x:   9.5, z: 27.5 },
   { x:  11.8, z: 27.0 },
   { x:  14.5, z: 29.0 },
   { x:  17.2, z: 27.0 },
@@ -568,6 +574,10 @@ for(const rz of [14.5, 16.2, 17.9])
   for(const cx of [-6.0, -4.2, 4.2, 6.0])
     BD_POS.push({ x:cx, z:rz, zone:'san_chua' });
 
+// 5. 4 Bồ đoàn tại Đài Tượng Bồ Tát Quán Thế Âm (Vườn Nam: x quanh 6.5, z = 28.6)
+for(const cx of [5.3, 6.1, 6.9, 7.7])
+  BD_POS.push({ x:cx, z:28.6, zone:'quan_am' });
+
 // Bồ đoàn đang bị chiếm — key "x_z" (ghosts + player)
 const BD_OCCUPIED = new Set();
 
@@ -629,15 +639,53 @@ function calcWalkPathDist(x1, z1, pathPts){
   return total;
 }
 
+function isBDOccupied(bd){
+  if(BD_OCCUPIED.has(bdKey(bd))) return true;
+  for(const g of ghostObjs){
+    if(g.curBD && Math.abs(g.curBD.x - bd.x) < 0.1 && Math.abs(g.curBD.z - bd.z) < 0.1) return true;
+    if(g.targetBD && Math.abs(g.targetBD.x - bd.x) < 0.1 && Math.abs(g.targetBD.z - bd.z) < 0.1) return true;
+    if(g.m && Math.hypot(g.m.position.x - bd.x, g.m.position.z - bd.z) < 0.72) return true;
+  }
+  return false;
+}
+
 function findNearestFreeBD(x, z){
+  // 1. Nếu người chơi đang ở khu vực Đài Tượng Bồ Tát Quán Thế Âm (bán kính < 6.5m quanh đài tượng)
+  const isNearQuanAm = (Math.hypot(x - 6.5, z - 26.8) < 6.5) || (x >= 2.0 && x <= 11.0 && z >= 23.0 && z <= 33.0);
+  if(isNearQuanAm){
+    // Lấy danh sách 4 bồ đoàn của Đài Quán Thế Âm mà chưa có ai ngồi
+    const freeQABDs = BD_POS.filter(bd => bd.zone === 'quan_am' && !isBDOccupied(bd));
+    if(freeQABDs.length > 0){
+      const scored = freeQABDs.map(bd => {
+        let d = Math.hypot(bd.x - x, bd.z - z);
+        // Nếu người chơi vừa mới ngồi ở bồ đoàn này thì cộng nhẹ penalty để ưu tiên đổi sang bồ đoàn trống bên cạnh
+        if(playerLastSitBD && Math.abs(bd.x - playerLastSitBD.x) < 0.1 && Math.abs(bd.z - playerLastSitBD.z) < 0.1 && freeQABDs.length > 1){
+          d += 0.15;
+        }
+        return { bd, dist: d };
+      });
+      scored.sort((a, b) => a.dist - b.dist);
+      // Nếu 2 bồ đoàn đầu tiên cách đều người chơi (< 0.08m, ví dụ khi đứng ngay giữa trục X=6.5)
+      // thì chọn ngẫu nhiên giữa 2 bồ đoàn này để luân phiên tự nhiên, không bị luôn vào 1 cái duy nhất!
+      if(scored.length >= 2 && Math.abs(scored[0].dist - scored[1].dist) < 0.08){
+        return Math.random() < 0.5 ? scored[0].bd : scored[1].bd;
+      }
+      return scored[0].bd;
+    }
+  }
+
+  // 2. Logic tổng quát cho toàn bộ Thiền Viện (Chánh Điện, Phật Hoàng, Bác Hồ, Sân Vườn)
   let nearest = null, bestScore = Infinity;
   BD_POS.forEach(bd => {
-    if(BD_OCCUPIED.has(bdKey(bd))) return;
+    if(isBDOccupied(bd)) return;
     const wp = buildGhostWalkPath(x, z, bd.x, bd.z);
     const pathDist = calcWalkPathDist(x, z, wp);
     const crossesWall = doesSegmentCrossWall(x, z, bd.x, bd.z);
     // Ưu tiên bồ đoàn trong cùng không gian không bị tường chắn (+8m nếu phải đi vòng qua cửa/tường)
-    const score = pathDist + (crossesWall ? 8.0 : 0.0);
+    let score = pathDist + (crossesWall ? 8.0 : 0.0);
+    if(playerLastSitBD && Math.abs(bd.x - playerLastSitBD.x) < 0.1 && Math.abs(bd.z - playerLastSitBD.z) < 0.1){
+      score += 0.25;
+    }
     if(score < bestScore){
       bestScore = score;
       nearest = bd;
@@ -647,10 +695,11 @@ function findNearestFreeBD(x, z){
 }
 
 // ─── GLIDE & SIT ──────────────────────────────────────────────────────────
-let glideTarget    = null;  // {x,z} bồ đoàn đang trượt đến
-let glideWaypoints = [];    // Lộ trình đi bộ theo đường chính tới bồ đoàn (không đi xuyên tường)
-let playerSitBD    = null;  // bồ đoàn player đang ngồi
-let glideMode      = 'sit'; // 'sit' | 'bow' — sau glide làm gì
+let glideTarget     = null;  // {x,z} bồ đoàn đang trượt đến
+let glideWaypoints  = [];    // Lộ trình đi bộ theo đường chính tới bồ đoàn (không đi xuyên tường)
+let playerSitBD     = null;  // bồ đoàn player đang ngồi
+let playerLastSitBD = null;  // bồ đoàn player vừa ngồi trước đó (để luân phiên đổi chỗ)
+let glideMode       = 'sit'; // 'sit' | 'bow' — sau glide làm gì
 
 function startGlideTo(bd){
   glideTarget = bd;
@@ -673,7 +722,11 @@ function startGlideTo(bd){
 }
 
 function stopSit(){
-  if(playerSitBD){ BD_OCCUPIED.delete(bdKey(playerSitBD)); playerSitBD=null; }
+  if(playerSitBD){
+    playerLastSitBD = playerSitBD;
+    BD_OCCUPIED.delete(bdKey(playerSitBD));
+    playerSitBD=null;
+  }
   glideTarget=null;
   glideWaypoints=[];
   mainState='idle'; sitT=0;
@@ -1547,6 +1600,8 @@ function buildWallsAndExterior(){
   addStoneRect(-29.80, -27.20, 13.80, 28.20); // Đường Kinh Hành rặng trúc bên Tây (z: 13.80 -> 28.20)
   addStoneRect( 27.20,  29.80, 13.80, 28.20); // Đường Kinh Hành rặng trúc bên Đông (z: 13.80 -> 28.20)
   addStoneRect(  1.70,  11.30, 25.80, 28.20); // Lối đá từ Đại lộ Trung tâm sang Sân Giếng Cổ
+  addStoneRect(  3.20,   9.80, 24.20, 31.00); // Sân đá Đài Tượng Bồ Tát Quán Thế Âm (mở rộng trang nghiêm từ bệ tượng ra trước bồ đoàn)
+  addStoneRect(  1.70,   3.50, 28.50, 31.00); // Lối đá nối từ Đại lộ Trung tâm sang Sân Chiêm Bái Đài Quán Âm
   addStoneRect( 11.30,  17.70, 24.20, 29.80); // Sân đá vuông quanh Giếng Cổ (thay cho hình trụ chồng đè trước đây)
   addStoneRect( 17.70,  27.20, 25.80, 28.20); // Lối đá từ Sân Giếng Cổ nối sát mép vào Đường Kinh Hành Đông
 
@@ -1697,6 +1752,137 @@ function buildWallsAndExterior(){
   // Xây Quảng trường Trái (Phật Hoàng Trần Nhân Tông) & Quảng trường Phải (Chủ tịch Hồ Chí Minh)
   buildGrandStatuePlaza(-22, 0, glbPhatHoang, 'PHẬT HOÀNG TRẦN NHÂN TÔNG', 'ĐIỀU NGỰ GIÁC HOÀNG (1258 – 1308)');
   buildGrandStatuePlaza( 22, 0, glbBacHo,     'CHỦ TỊCH HỒ CHÍ MINH',     'ANH HÙNG GIẢI PHÓNG DÂN TỘC – DANH NHÂN VĂN HÓA');
+
+  // ── 4B. ĐÀI TƯỢNG BỒ TÁT QUÁN THẾ ÂM (VƯỜN NAM CỔNG NỘI TỰ: X=6.5, Z=25.8) ─────────
+  function buildQuanAmPlaza(cx, cz, statueGlb){
+    const pg = new THREE.Group();
+    pg.position.set(cx, 0, cz);
+
+    // Bệ đá Tam Cấp 3 tầng tròn nâng Đài Sen (tầng 1: R=1.85m, tầng 2: R=1.50m, tầng 3: R=1.15m)
+    const p1 = new THREE.Mesh(new THREE.CylinderGeometry(1.75, 1.95, 0.28, 16), stoneGreyMat);
+    p1.position.y = 0.14; p1.castShadow = true; p1.receiveShadow = true; pg.add(p1);
+    sceneFloorMeshes.push(p1);
+
+    const p2 = new THREE.Mesh(new THREE.CylinderGeometry(1.35, 1.55, 0.26, 16), stoneLightMat);
+    p2.position.y = 0.41; p2.castShadow = true; p2.receiveShadow = true; pg.add(p2);
+    sceneFloorMeshes.push(p2);
+
+    const p3 = new THREE.Mesh(new THREE.CylinderGeometry(1.05, 1.25, 0.24, 16), stoneGreyMat);
+    p3.position.y = 0.66; p3.castShadow = true; p3.receiveShadow = true; pg.add(p3);
+    sceneFloorMeshes.push(p3);
+
+    // Đặt mô hình 3D Đại Tượng Bồ Tát Quán Thế Âm (.glb) nếu có
+    if(statueGlb){
+      const st = statueGlb.clone(true);
+      st.position.set(0, 0.78, 0);
+      st.rotation.y = 0; // Hướng mặt về phía Nam
+      st.traverse(n => {
+        if(n.isMesh){
+          n.castShadow = true;
+          n.receiveShadow = true;
+          if(n.material){
+            n.material.transparent = true;
+            n.material.alphaTest = 0.05;
+            n.material.depthWrite = true;
+            n.material.side = THREE.DoubleSide;
+            n.material.needsUpdate = true;
+          }
+        }
+      });
+      pg.add(st);
+    } else {
+      // Đài Tòa Sen ngọc (Lotus Throne) cao 0.38m (dùng khi chưa nạp được GLB)
+      const lotusBaseMat = new THREE.MeshLambertMaterial({ color: 0xfffcf7 });
+      const lotusPedestal = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 0.65, 0.28, 24), lotusBaseMat);
+      lotusPedestal.position.y = 0.92; lotusPedestal.castShadow = true; pg.add(lotusPedestal);
+
+      // Các cánh hoa sen nở ôm quanh tòa sen
+      const petalMat = new THREE.MeshLambertMaterial({ color: 0xf8d7e8 });
+      for(let i=0; i<12; i++){
+        const ang = (i / 12) * Math.PI * 2;
+        const petal = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.08, 0.38, 5), petalMat);
+        petal.rotation.z = 0.32;
+        petal.rotation.y = ang;
+        petal.position.set(Math.cos(ang) * 0.72, 0.96, Math.sin(ang) * 0.72);
+        petal.castShadow = true;
+        pg.add(petal);
+      }
+      // Tượng Bồ Tát Quán Thế Âm áo trắng tôn nghiêm sẵn có (tự động thay thế khi có file tuong_quan_am.glb)
+      const qaGroup = new THREE.Group();
+      qaGroup.position.set(0, 1.06, 0);
+
+      const robeMat = new THREE.MeshLambertMaterial({ color: 0xfbfbfb });
+      const robeTrimMat = new THREE.MeshStandardMaterial({ color: 0xd9a830, metalness: 0.5, roughness: 0.3 });
+      const skinMat = new THREE.MeshLambertMaterial({ color: 0xffeedb });
+
+      // Vạt áo tràng trắng dài phủ chân
+      const robeBottom = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.62, 1.45, 20), robeMat);
+      robeBottom.position.y = 0.725; robeBottom.castShadow = true; qaGroup.add(robeBottom);
+
+      // Thân trên áo tràng
+      const robeTorso = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.38, 0.75, 16), robeMat);
+      robeTorso.position.y = 1.70; robeTorso.castShadow = true; qaGroup.add(robeTorso);
+
+      // Cổ & Khuôn mặt từ bi thanh thoát
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.19, 16, 16), skinMat);
+      head.position.y = 2.22; head.castShadow = true; qaGroup.add(head);
+
+      // Khăn trùm đầu trắng (bạch sa phủ vai)
+      const veil = new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.42, 0.95, 16, 1, true), robeMat);
+      veil.position.y = 2.05; veil.castShadow = true; qaGroup.add(veil);
+
+      // Mũ miện Phật trên đỉnh đầu
+      const crown = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.18, 0.28, 12), robeTrimMat);
+      crown.position.y = 2.45; crown.castShadow = true; qaGroup.add(crown);
+
+      // Tay trái cầm Bình Cam Lộ (Thanh Tịnh Bình)
+      const vase = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.09, 0.28, 12), robeMat);
+      vase.position.set(-0.24, 1.48, 0.28);
+      vase.rotation.z = 0.35; vase.rotation.x = 0.2;
+      qaGroup.add(vase);
+
+      // Tay phải cầm cành dương liễu
+      const willow = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.38, 6), new THREE.MeshLambertMaterial({ color: 0x5a9a5a }));
+      willow.position.set(0.22, 1.62, 0.26);
+      willow.rotation.z = -0.3;
+      qaGroup.add(willow);
+
+      // Vòng hào quang sáng sau đầu Bồ Tát
+      const halo = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.035, 8, 32), robeTrimMat);
+      halo.position.set(0, 2.22, -0.08);
+      qaGroup.add(halo);
+
+      pg.add(qaGroup);
+    }
+
+    // Bảng Tôn Hiệu Đá Khắc Vàng
+    const plaque = makePlaqueMesh('NAM MÔ QUÁN THẾ ÂM BỒ TÁT', 'ĐẠI BI CỨU KHỔ CỨU NẠN', 3.8, 0.72);
+    plaque.position.set(0, 4.45, -0.9);
+    pg.add(plaque);
+    [-1.6, 1.6].forEach(px => {
+      const col = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.15, 4.5, 12), stoneLightMat);
+      col.position.set(px, 2.25, -0.95); col.castShadow = true; pg.add(col);
+    });
+
+    // Ánh sáng vàng dịu từ bi chiếu vào Đài Tượng
+    const spot = new THREE.PointLight(0xfff5dd, 1.25, 14);
+    spot.position.set(0, 3.6, 2.2);
+    pg.add(spot);
+    lightingSystem.statueLights.push(spot);
+    addNightLightPool(cx, cz + 1.2, 5.5, 0.04);
+
+    g.add(pg);
+
+    // Lư hương đồng/đá phía trước đài sen (tại z = cz + 1.6)
+    addIncenseBurner(cx, cz + 1.6);
+
+    // Đèn đá sân vườn mở rộng sang hai góc ngoài (tả - hữu đối xứng theo hướng mũi tên)
+    addStoneLantern(cx - 3.8, cz + 2.8);
+    addStoneLantern(cx + 3.8, cz + 2.8);
+  }
+
+  // Xây dựng Đài Tượng Bồ Tát Quán Thế Âm (Vườn Nam: X=6.5, Z=25.8)
+  buildQuanAmPlaza(6.5, 25.8, glbQuanAm);
 
   // Lư hương chính tại sân chùa (z = 15.2) & đôi đèn đá đặt trên thảm cỏ xanh phía Nam cổng Nội Tự (z = 23.8)
   addIncenseBurner(0, 15.2);
@@ -2301,7 +2487,7 @@ function buildWallsAndExterior(){
     addStoneLantern(-25.8, z);
     addStoneLantern( 25.8, z);
   });
-  [-24.5, -7.0, 7.0, 24.5].forEach(x => addStoneLantern(x, 30.2));
+  [-24.5, -7.0, 24.5].forEach(x => addStoneLantern(x, 30.2)); // Giải phóng cột x=7.0 để mặt tiền Đài Tượng Quan Âm thông thoáng 100%
 
   // ── 10B. ĐỊA THẾ PHONG THỦY "TỰA SƠN HƯỚNG THỦY": ĐẠI SƠN SAU CHÙA, ĐẠI HỒ TRƯỚC MẶT, ĐỒI NÚI, RỪNG CÂY & ĐƯỜNG HÀNH HƯƠNG VÒNG QUA NÚI ──
   {
@@ -2965,7 +3151,7 @@ function makeLabel(name, isSelf = false, isMaster = false){
 // ═══════════════════════════════════════════════════════════
 //  LOAD MODELS (Song song + Lưu Cache trình duyệt CacheStorage theo chuẩn KE_HOACH_THIET_KE)
 // ═══════════════════════════════════════════════════════════
-const GLB_CACHE_NAME = 'thien-tue-3d-models-v2';
+const GLB_CACHE_NAME = 'thien-tue-3d-models-v5';
 
 async function fetchGLBBufferCached(url){
   if(typeof caches !== 'undefined'){
@@ -2989,27 +3175,36 @@ async function fetchGLBBufferCached(url){
 async function loadModels(){
   const loader = new GLTFLoader();
   let loadedCount = 0;
-  const totalModels = 6;
+  const totalModels = 7;
 
-  const load = async (url, label) => {
-    const buf = await fetchGLBBufferCached(url);
-    return await new Promise((res, rej) => {
-      loader.parse(buf, '', g => {
-        loadedCount++;
-        const pct = Math.min(96, 15 + Math.round((loadedCount / totalModels) * 81));
-        setBar(pct, `Đã tải (${loadedCount}/${totalModels}): ${label}`);
-        res(g.scene);
-      }, rej);
-    });
+  const load = async (url, label, optional=false) => {
+    try {
+      const buf = await fetchGLBBufferCached(url);
+      return await new Promise((res, rej) => {
+        loader.parse(buf, '', g => {
+          loadedCount++;
+          const pct = Math.min(96, 15 + Math.round((loadedCount / totalModels) * 81));
+          setBar(pct, `Đã tải (${loadedCount}/${totalModels}): ${label}`);
+          res(g.scene);
+        }, rej);
+      });
+    } catch(err){
+      if(optional){
+        console.info(`[LOAD] Mô hình tùy chọn (${label}) chưa có file trên máy, dùng tượng tôn nghiêm sẵn có.`);
+        return null;
+      }
+      throw err;
+    }
   };
 
   setBar(15, 'Đang tải đồng thời không gian 3D & nhân vật...');
 
-  // Tải song song cả 6 mô hình .glb + đọc từ CacheStorage (lần thứ 2 vào trang mở tức thì 0 giây)
-  const [tRes, phRes, bhRes, namRes, nuRes, spRes] = await Promise.allSettled([
+  // Tải song song cả 7 mô hình .glb + đọc từ CacheStorage (lần thứ 2 vào trang mở tức thì 0 giây)
+  const [tRes, phRes, bhRes, qaRes, namRes, nuRes, spRes] = await Promise.allSettled([
     load('models_3d/chanh_dien_chua_viet.glb', 'Chánh Điện Đại Thiền Đường'),
     load('models_3d/tuong_phat_hoang.glb',     'Đại Tượng Phật Hoàng Trần Nhân Tông'),
     load('models_3d/tuong_bac_ho.glb',         'Đại Tượng Chủ tịch Hồ Chí Minh'),
+    load('models_3d/tuong_quan_am.glb',        'Đài Tượng Bồ Tát Quán Thế Âm', true),
     load('models_3d/be_nam_ao_lam.glb',        'Nhân vật Nam'),
     load('models_3d/be_nu_ao_hong.glb',        'Nhân vật Nữ'),
     load('models_3d/su_phu.glb',               'Sư Phụ hướng dẫn thiền')
@@ -3035,6 +3230,9 @@ async function loadModels(){
 
   if(bhRes.status === 'fulfilled') glbBacHo = bhRes.value;
   else console.warn('Tượng Bác Hồ GLB lỗi', bhRes.reason);
+
+  if(qaRes.status === 'fulfilled' && qaRes.value) glbQuanAm = qaRes.value;
+  else console.info('Tượng Quan Âm: Sử dụng tượng Bạch Y Quán Âm sẵn có (tự động thay thế khi có tuong_quan_am.glb)');
 
   if(namRes.status === 'fulfilled') glbNam = namRes.value;
   else { console.warn('Nam GLB lỗi'); glbNam = buildChar(0x4a6ea8); }
@@ -3899,9 +4097,36 @@ function doThien(){
 }
 window.doThien = doThien;
 
+let trinhPhapActive = false;
+
 function doTrinhPhap(){
   playBell(true);
-  toast('Chức năng đang được bổ sung');
+  if(mainState === 'bow_seq') return;
+  if(mainState === 'sit'){
+    toast('Đang tọa thiền trước Đài Bồ Tát Quán Thế Âm 🕊️');
+    return;
+  }
+
+  // Nếu đang kinh hành thì dừng lại
+  if(mainState === 'kinh_hanh') stopKinhHanh();
+  if(mainState === 'glide') stopSit();
+
+  toast('🕊️ Trình Pháp: Di chuyển đến Đài Bồ Tát Quán Thế Âm & Tọa Thiền...');
+
+  // Kiểm tra nếu người chơi đã đang ở khu vực Đài Quán Thế Âm
+  if(playerMesh){
+    const px = playerMesh.position.x, pz = playerMesh.position.z;
+    const isNearQA = (Math.hypot(px - 6.5, pz - 26.8) < 6.5) || (px >= 2.0 && px <= 11.0 && pz >= 23.0 && pz <= 33.0);
+    if(isNearQA){
+      trinhPhapActive = false;
+      doThien();
+      return;
+    }
+  }
+
+  // Tự hành di chuyển về Đài Tượng Bồ Tát Quán Thế Âm, khi đến nơi tự động Tọa Thiền
+  trinhPhapActive = true;
+  goToDestination('quan_am');
 }
 window.doTrinhPhap = doTrinhPhap;
 
@@ -3984,6 +4209,15 @@ function canMoveTo(nx, nz){
   // 9. Không bước qua Tòa Tọa Cụ & Sư Phụ (bức tường vô hình bao quanh thảm ngồi)
   if(Math.hypot(nx - SU_PHU_POS.x, nz - SU_PHU_POS.z) < 1.10) return false;
 
+  // 10. Không bước xuyên qua Đài Tượng & Bệ Sen Bồ Tát Quán Thế Âm (tâm 6.5, 25.8, bán kính bảo vệ 1.75m)
+  if(Math.hypot(nx - 6.5, nz - 25.8) < 1.75) return false;
+
+  // 11. Không bước xuyên qua Lư hương & 2 Đèn đá Đài Bồ Tát Quán Thế Âm + Đèn đá Cổng Nam
+  if(Math.hypot(nx - 6.5, nz - 27.4) < 0.85) return false; // Lư hương Quan Âm
+  if(Math.hypot(nx - 2.7, nz - 28.6) < 0.65) return false; // Đèn đá Tây Nam Quan Âm
+  if(Math.hypot(nx - 10.3, nz - 28.6) < 0.65) return false; // Đèn đá Đông Nam Quan Âm
+  if(Math.hypot(Math.abs(nx) - 3.0, nz - 23.8) < 0.65) return false; // 2 Đèn đá Nam Cổng Nội Tự
+
   return true;
 }
 
@@ -4048,6 +4282,8 @@ const NAV_NODES = {
   n_kinh_r:        { x:  28.5, z: 12.5 },
   n_kinh_e_mid:    { x:  28.5, z: 27.0 },
   n_garden_hub:    { x:   0.0, z: 27.0 },
+  n_garden_mid:    { x:   0.0, z: 29.8 }, // Trục Đại lộ Trung tâm rẽ sang Sân Chiêm Bái Đài Quán Âm
+  n_quan_am:       { x:   6.5, z: 29.8 }, // Điểm dừng chiêm bái trang nghiêm trước bồ đoàn Đài Tượng Quán Thế Âm
   n_well_w:        { x:  11.8, z: 27.0 },
   n_well_s:        { x:  14.5, z: 29.0 },
   n_well_e:        { x:  17.2, z: 27.0 },
@@ -4098,8 +4334,10 @@ const NAV_EDGES = [
 
   // Ngoại vi Kinh Hành, Đường Đá Vòng Cung Phía Nam Ôm Quanh Hồ Sen, Sân Giếng Cổ & Cổng Tam Quan (100% trên đường đá)
   ['n_kinh_l', 'n_kinh_w_mid'], ['n_kinh_r', 'n_kinh_e_mid'],
-  ['n_gate_south_out', 'n_garden_hub'], ['n_garden_hub', 'n_ho_sen'], ['n_garden_hub', 'n_tam_quan'], ['n_tam_quan', 'n_ben_ho'],
-  ['n_garden_hub', 'n_well_w'], ['n_well_w', 'n_well_s'], ['n_well_s', 'n_well_e'], ['n_well_e', 'n_kinh_e_mid'],
+  ['n_gate_south_out', 'n_garden_hub'], ['n_garden_hub', 'n_garden_mid'], ['n_garden_mid', 'n_tam_quan'], ['n_tam_quan', 'n_ben_ho'],
+  ['n_garden_hub', 'n_ho_sen'], ['n_garden_hub', 'n_well_w'],
+  ['n_garden_mid', 'n_quan_am'], ['n_quan_am', 'n_well_s'],
+  ['n_well_w', 'n_well_s'], ['n_well_s', 'n_well_e'], ['n_well_e', 'n_kinh_e_mid'],
   ['n_kinh_w_mid', 'n_pond_w'],
   // Vòng cung phía Nam Hồ Sen (nối bờ Đông <-> bờ Tây hoàn toàn ngoài Tường Rào Nội Tự z = 22.5)
   ['n_ho_sen', 'n_pond_se'], ['n_pond_se', 'n_pond_s'], ['n_pond_s', 'n_pond_sw'], ['n_pond_sw', 'n_pond_w'],
@@ -4117,6 +4355,10 @@ const DESTINATIONS = {
   bac_ho: {
     ico: '🪷', title: 'Đài Tượng Chủ Tịch Hồ Chí Minh',
     node: 'n_bac_ho', lookAt: { x: 22, z: -5.5 }
+  },
+  quan_am: {
+    ico: '🕊️', title: 'Đài Tượng Bồ Tát Quán Thế Âm',
+    node: 'n_quan_am', lookAt: { x: 6.5, z: 25.8 }
   },
   gac_chuong: {
     ico: '🔔', title: 'Sân Thiền Vườn & Gác Chuông',
@@ -4154,6 +4396,10 @@ const STATIC_OBSTACLES = [
   { x: SU_PHU_POS.x, z: SU_PHU_POS.z, r: 1.10 }, // Tòa Tọa Cụ & Sư Phụ — bức tường vô hình bao quanh thảm ngồi, không ai bước qua được
   { x: -15.5, z: 27.0, r: 5.35 }, // Hồ Sen (để nhân vật tự động đi uốn cong theo bờ đá vòng cung quanh hồ)
   { x:  14.5, z: 27.0, r: 1.65 }, // Thành Giếng Cổ đá bát giác
+  { x:   6.5, z: 25.8, r: 1.85 }, // Bệ Đài Sen Tượng Bồ Tát Quán Thế Âm
+  { x:   6.5, z: 27.4, r: 0.95 }, // Lư hương Đài Bồ Tát Quán Thế Âm
+  { x:   2.7, z: 28.6, r: 0.70 }, // Đèn đá Tây Nam Đài Bồ Tát Quán Thế Âm
+  { x:  10.3, z: 28.6, r: 0.70 }, // Đèn đá Đông Nam Đài Bồ Tát Quán Thế Âm
 ];
 
 // Kiểm tra tọa độ (x, z) có đang ở trong phễu đi qua khe cửa / cổng vòm hay không (để giữ thẳng hướng tâm cửa, không lách lệch vào tường)
@@ -4469,7 +4715,7 @@ function triggerDestinationArrivalCam(destKey, dest){
   smartCam.manualMode   = false;
   smartCam.userOverride = false;
 
-  if(destKey === 'chanh_dien' || destKey === 'phat_hoang' || destKey === 'bac_ho'){
+  if(destKey === 'chanh_dien' || destKey === 'phat_hoang' || destKey === 'bac_ho' || destKey === 'quan_am'){
     const inHall   = (destKey === 'chanh_dien');
     const behindAz = playerMesh.rotation.y + Math.PI;
     const dist     = inHall ? 3.15 : 3.45;
@@ -4531,6 +4777,7 @@ function goToDestination(destKey){
 
   const dest = DESTINATIONS[destKey];
   if(!dest) return;
+  if(destKey !== 'quan_am') trinhPhapActive = false;
 
   if(mainState === 'sit' || mainState === 'glide') stopSit();
   if(mainState === 'kinh_hanh') stopKinhHanh();
@@ -4545,6 +4792,10 @@ function goToDestination(destKey){
     if(dest.autoKinhHanh){ doKinhHanh(); return; }
     triggerDestinationArrivalCam(destKey, dest);
     setDestHighlight(destKey);
+    if(trinhPhapActive && destKey === 'quan_am'){
+      trinhPhapActive = false;
+      setTimeout(() => { if(mainState === 'idle') doThien(); }, 350);
+    }
     return;
   }
 
@@ -4585,6 +4836,8 @@ function updateZoneTitle(x, z){
     key = 'kinh_hanh';
   } else if(z >= 9.2 && z < 22.8 && Math.abs(x) <= 13.8){
     key = 'gac_chuong';
+  } else if((x >= 2.2 && x <= 10.8 && z >= 22.8 && z <= 32.5) || Math.hypot(x - 6.5, z - 26.8) < 4.8){
+    key = 'quan_am';
   } else if(z > 36){
     key = 'tam_quan';
   } else {
@@ -4643,6 +4896,7 @@ function handleMove(dt){
   const mv = turnLeft || turnRight || moveFwd || moveBack;
 
   if(mv){
+    trinhPhapActive = false;
     if(mainState==='glide') stopSit();
     if(mainState==='kinh_hanh') stopKinhHanh();
     if(mainState==='auto_nav'){
@@ -4699,6 +4953,12 @@ function handleMove(dt){
           triggerDestinationArrivalCam(finishedKey, dest);
           lastZoneState.key = finishedKey;
           setDestHighlight(finishedKey);
+          if(trinhPhapActive && finishedKey === 'quan_am'){
+            trinhPhapActive = false;
+            setTimeout(() => {
+              if(mainState === 'idle') doThien();
+            }, 350);
+          }
         }
       }
     } else {
@@ -4821,7 +5081,11 @@ function animPlayer(dt, t){
           // Glide để ngồi thiền
           mainState = 'sit'; sitT=0;
           document.getElementById('b-thien').classList.add('active');
-          toast('🙏 Nam Mô Bổn Sư Thích Ca Mâu Ni Phật');
+          const toastMsg = (buddha && buddha.id === 'quan_am_garden') ? '🕊️ Nam Mô Quán Thế Âm Bồ Tát' :
+                           (buddha && buddha.id === 'phat_hoang_left') ? '🙏 Nam Mô Phật Hoàng Trần Nhân Tông' :
+                           (buddha && buddha.id === 'bac_ho_right') ? '🪷 Kính Cẩn Tưởng Niệm Chủ Tịch Hồ Chí Minh' :
+                           '🙏 Nam Mô Bổn Sư Thích Ca Mâu Ni Phật';
+          toast(toastMsg);
         }
       }
       break;
@@ -4882,6 +5146,7 @@ const GHOST_ADMIRE_SPOTS = [
   { node: 'n_ho_sen',     x:  -9.3, z: 26.5, lookX: -15.5, lookZ: 27.0 }, // Ngắm Hồ Sen bờ Đông
   { node: 'n_pond_s',     x: -15.5, z: 33.2, lookX: -15.5, lookZ: 27.0 }, // Ngắm Hồ Sen bờ Nam
   { node: 'n_well_s',     x:  14.5, z: 29.0, lookX:  14.5, lookZ: 27.0 }, // Sân Giếng Cổ Đá Ong
+  { node: 'n_quan_am',    x:   6.5, z: 29.8, lookX:   6.5, lookZ: 25.8 }, // Chiêm bái Đài Tượng Bồ Tát Quán Thế Âm
   { node: 'n_phat_hoang', x: -22.0, z:  5.0, lookX: -22.0, lookZ: -5.5 }, // Đài Tượng Phật Hoàng
   { node: 'n_bac_ho',     x:  22.0, z:  5.0, lookX:  22.0, lookZ: -5.5 }, // Đài Tượng Bác Hồ
   { node: 'n_tam_quan',   x:   0.0, z: 39.5, lookX:   0.0, lookZ: 46.0 }  // Sân Đại Cổng Tam Quan
@@ -5049,6 +5314,12 @@ function buildGhostWalkPath(x1, z1, x2, z2){
       // Đang ở khu bồ đoàn Sân Thiền Vườn -> bước thẳng lên trục đường đá ngang z = 12.5
       rawPts.push({ x: x1, z: 12.5 });
       startEntry = { x: x1, z: 12.5 };
+    } else if(x1 >= 4.5 && x1 <= 8.5 && z1 > 27.5 && z1 < 30.0){
+      // Đang ở khu bồ đoàn Đài Bồ Tát Quán Thế Âm -> bước lùi ra trục đường đá phía trước z = 29.8
+      rawPts.push({ x: x1, z: 29.8 });
+      rawPts.push({ x: 6.5, z: 29.8 });
+      startEntry = { x: 6.5, z: 29.8 };
+      forcedStartKey = 'n_quan_am';
     }
 
     let endEntry = { x: x2, z: z2 };
@@ -5083,6 +5354,14 @@ function buildGhostWalkPath(x1, z1, x2, z2){
       forcedEndKey = (x2 < 0) ? 'n_san_l' : 'n_bell_kh';
       tailPts = [
         { x: x2, z: 12.5 },
+        { x: x2, z: z2 }
+      ];
+    } else if(x2 >= 4.5 && x2 <= 8.5 && z2 > 27.5 && z2 < 30.0){
+      // Điểm đến là bồ đoàn Đài Bồ Tát Quán Thế Âm -> đi tới trục đường đá trước sân z = 29.8 rồi bước lên bồ đoàn
+      endEntry = { x: 6.5, z: 29.8 };
+      forcedEndKey = 'n_quan_am';
+      tailPts = [
+        { x: x2, z: 29.8 },
         { x: x2, z: z2 }
       ];
     } else {
